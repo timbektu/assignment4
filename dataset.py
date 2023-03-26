@@ -15,7 +15,7 @@ from pytorch3d.renderer import PerspectiveCameras
 from torch.utils.data import Dataset
 
 import matplotlib.pyplot as plt
-
+import pdb
 
 DEFAULT_DATA_ROOT = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "data"
@@ -121,6 +121,9 @@ def get_nerf_datasets(
     ]
 
     train_idx, val_idx, test_idx = train_data["split"]
+    # pdb.set_trace()
+    # train_idx = train_idx[:20]
+
 
     train_dataset, val_dataset, test_dataset = [
         ListDataset(

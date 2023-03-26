@@ -39,7 +39,7 @@ from dataset import (
 )
 from render_functions import render_geometry
 from render_functions import render_points
-
+import pdb
 
 # Model class containing:
 #   1) Implicit function defining the scene
@@ -110,7 +110,7 @@ def render_images(
             origin = torch.tensor([0.0, 0.0, 0.0], device=device) 
             light_location = None if lights is None else lights[cam_idx].location.to(device)
             if lights is not None:
-                light_dir = None #TODO: Use light location and origin to compute light direction
+                light_dir = light_location - origin #TODO: Use light location and origin to compute light direction
                 light_dir = torch.nn.functional.normalize(light_dir, dim=-1).view(-1, 3)
             xy_grid = get_pixels_from_image(image_size, camera)
             ray_bundle = get_rays_from_pixels(xy_grid, image_size, camera)
@@ -234,7 +234,7 @@ def train_points(
 
             # Get distances and enforce point cloud loss
             distances, gradients = model.implicit_fn.get_distance_and_gradient(points)
-            loss = None # TODO (Q2): Point cloud SDF loss on distances
+            loss = torch.mean(torch.abs(distances), dim=0)[0] # TODO (Q2): Point cloud SDF loss on distances
             point_loss = loss
 
             # Sample random points in bounding box
@@ -244,6 +244,7 @@ def train_points(
 
             # Get sdf gradients and enforce eikonal loss
             eikonal_distances, eikonal_gradients = model.implicit_fn.get_distance_and_gradient(eikonal_points)
+            # pdb.set_trace()
             loss += torch.exp(-1e2 * torch.abs(eikonal_distances)).mean() * cfg.training.inter_weight
             loss += eikonal_loss(eikonal_gradients) * cfg.training.eikonal_weight # TODO (Q2): Implement eikonal loss
 
